@@ -18,6 +18,12 @@ rm /tmp/ci-utils.zip
 export PATH="/opt/riotkit/utils:$PATH"
 ```
 
+### Usage on Travis
+
+```yaml
+- curl "https://raw.githubusercontent.com/riotkit-org/ci-utils/master/ci-integration/travis.sh" -s | bash
+```
+
 Tools
 =====
 
