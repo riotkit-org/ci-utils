@@ -1,0 +1,101 @@
+#!/usr/bin/env python3
+
+import subprocess
+import time
+import typing
+import argparse
+import sys
+
+
+class WaitForMySQLToBeReady:
+    host: str
+    port: int
+    user: str
+    password: str
+    timeout: int
+
+    def __init__(self, host: str, port: int = 3306, user: str = '', password: str = '', timeout: int = 15):
+        self.host = host
+        self.port = port
+        self.user = user
+        self.password = password
+        self.timeout = timeout
+
+    def main(self):
+        if WaitForMySQLToBeReady.is_mysql_tool_available() and self.user:
+            print(' >> MySQL tool checker was selected')
+            checker = self.get_wait_command_for_mysql()
+        else:
+            print(' >> NC tool was selected')
+            checker = self.get_wait_command_for_nc()
+
+        time_left = self.timeout
+
+        while time_left != 0:
+            if checker():
+                print(' >> The MySQL seems to be online')
+                sys.exit(0)
+
+            time.sleep(1)
+            time_left -= 1
+
+        print(' >> Error: The MySQL is still down')
+        sys.exit(1)
+
+    def get_wait_command_for_mysql(self) -> typing.Callable:
+        return lambda: self.is_command_of_success_code(
+            'mysql ' +
+            '-h "' + self.host + '" ' +
+            '-P "' + str(self.port) + '" ' +
+            '-u"' + self.user + '" ' +
+            ('-p"' + self.password + '" ' if self.password else ' ') +
+            '-e "SELECT 1;"'
+        )
+
+    def get_wait_command_for_nc(self):
+        return lambda: self.is_command_of_success_code(
+            'echo "ttttt\n\n" | nc -w 1 "' + self.host + '" "' + str(self.port) + '" | grep "mysql_native"'
+        )
+
+    @staticmethod
+    def is_mysql_tool_available() -> bool:
+        return WaitForMySQLToBeReady.is_command_of_success_code('command -v mysql')
+
+    @staticmethod
+    def is_command_of_success_code(cmd: str) -> bool:
+        try:
+            subprocess.check_output(cmd, shell=True)
+            return True
+
+        except subprocess.CalledProcessError as e:
+            print(e.output.decode('utf-8'))
+            return False
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--host',
+                        help='IP address of unix socket',
+                        required=True)
+    parser.add_argument('--port',
+                        help='Port (defaults to 3306)',
+                        default=3306)
+    parser.add_argument('--username',
+                        help='Username (optional, when not specified, then only port will be checked)',
+                        required=False)
+    parser.add_argument('--password',
+                        help='Password (optional)',
+                        default='')
+    parser.add_argument('--timeout',
+                        help='Timeout in seconds (optional, defaults to 15)',
+                        default=15)
+
+    parsed = vars(parser.parse_args())
+
+    WaitForMySQLToBeReady(
+        host=parsed['host'],
+        port=int(parsed['port']),
+        user=parsed['username'],
+        password=parsed['password'],
+        timeout=int(parsed['timeout'])
+    ).main()
