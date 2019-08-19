@@ -40,6 +40,7 @@ class ExtractEnvsFromDockerfile:
         for line in normalized_lines:
             pos += 1
 
+            # each block that starts with "ENV" can be multi-line, so it will be extracted multi-line
             if line.upper().startswith('ENV'):
                 matched_lines = {**matched_lines, **self._parse_lines(self._extract_block(pos, normalized_lines))}
 
@@ -50,15 +51,19 @@ class ExtractEnvsFromDockerfile:
         comment_buffer = ''
 
         for line in lines:
+            # if that's a comment or a comment continuation, then collect into the buffer
             if line.startswith('#'):
-                comment_buffer += line + "\n"
+                comment_buffer += line.lstrip('# ') + "\n"
             else:
+                # if the comment block ended, or it is not a comment block
                 if line.startswith('ENV'):
                     line = line[3:].strip()
 
                 sep = line.split('=', maxsplit=1)
 
+                # potential syntax error
                 if len(sep) < 2:
+                    sys.stderr.write('!!! Cannot parse block in line "%s"' % line)
                     continue
 
                 parsed[sep[0].strip()] = EnvironmentVariable(
