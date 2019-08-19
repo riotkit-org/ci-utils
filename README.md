@@ -27,6 +27,15 @@ export PATH="/opt/riotkit/utils:$PATH"
 Tools
 =====
 
+### env-to-json
+
+Dumps environment variables of current shell scope into the json.
+
+```bash
+./bin/env-to-json parse_json # will also parse into native json all variable values that are json
+./bin/env-to-json
+```
+
 ### extract-envs-from-dockerfile
 
 Extracts defined environment variables from Dockerfile (with comments). Supports multi-line environment variable blocks.
