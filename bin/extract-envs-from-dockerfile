@@ -24,12 +24,12 @@ class ExtractEnvsFromDockerfile:
         out_vars = self.get_envs(content)
 
         if out_format == 'bash_source':
-            print('DOCKERFILE_ENVS=\'%s\'' % json.dumps(out_vars))
+            print('export DOCKERFILE_ENVS=\'%s\'' % json.dumps(out_vars))
         elif out_vars == 'json':
             print(json.dumps(out_vars))
         else:
             for name, out_var in out_vars.items():
-                print('%s=%s' % (out_var.name, out_var.value))
+                print('export %s=%s' % (out_var.name, out_var.value))
 
     def get_envs(self, content: str):
         by_lines = content.split("\n")
