@@ -1,0 +1,100 @@
+#!/usr/bin/env python3
+
+"""
+    Usage:
+        - cat Dockerfile | ./extract-envs-from-dockerfile bash_source > some.env
+        - cat Dockerfile | ./extract-envs-from-dockerfile json > some.json
+        - cat Dockerfile | ./extract-envs-from-dockerfile bash | bash
+"""
+
+import sys
+import typing
+import json
+from collections import namedtuple
+
+EnvironmentVariable = namedtuple('EnvironmentVariable', 'name value comment')
+
+
+class ExtractEnvsFromDockerfile:
+    def read(self) -> str:
+        return sys.stdin.read()
+
+    def main(self, out_format: str = 'bash_source'):
+        content = self.read()
+        out_vars = self.get_envs(content)
+
+        if out_format == 'bash_source':
+            print('DOCKERFILE_ENVS=\'%s\'' % json.dumps(out_vars))
+        elif out_vars == 'json':
+            print(json.dumps(out_vars))
+        else:
+            for name, out_var in out_vars.items():
+                print('%s=%s' % (out_var.name, out_var.value))
+
+    def get_envs(self, content: str):
+        by_lines = content.split("\n")
+        normalized_lines = list(map(lambda curr: curr.strip(), by_lines))
+        pos = -1
+        matched_lines = {}
+
+        for line in normalized_lines:
+            pos += 1
+
+            if line.upper().startswith('ENV'):
+                matched_lines = {**matched_lines, **self._parse_lines(self._extract_block(pos, normalized_lines))}
+
+        return matched_lines
+
+    def _parse_lines(self, lines: typing.List[str]) -> typing.Dict[str, EnvironmentVariable]:
+        parsed = {}
+        comment_buffer = ''
+
+        for line in lines:
+            if line.startswith('#'):
+                comment_buffer += line + "\n"
+            else:
+                if line.startswith('ENV'):
+                    line = line[3:].strip()
+
+                sep = line.split('=', maxsplit=1)
+
+                if len(sep) < 2:
+                    continue
+
+                parsed[sep[0].strip()] = EnvironmentVariable(
+                    name=sep[0].strip(),
+                    value=sep[1].strip(),
+                    comment=comment_buffer.strip()
+                )
+                comment_buffer = ''
+
+        return parsed
+
+    def _extract_block(self, start_pos: int, lines: typing.List[str]) -> list:
+        extracted = []
+        pos = start_pos
+        length = len(lines)
+
+        extracted.append(lines[start_pos].rstrip('\\'))
+
+        while True:
+            pos += 1
+
+            if pos > length:
+                break
+
+            line = lines[pos]
+
+            if line.endswith('\\') or line.startswith('#'):
+                extracted.append(line.rstrip('\\'))
+                continue
+            else:
+                extracted.append(line)
+                break
+
+        return extracted
+
+
+if __name__ == '__main__':
+    app = ExtractEnvsFromDockerfile()
+    app.main(sys.argv[1] if len(sys.argv) > 1 else '')

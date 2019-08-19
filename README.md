@@ -27,6 +27,16 @@ export PATH="/opt/riotkit/utils:$PATH"
 Tools
 =====
 
+### extract-envs-from-dockerfile
+
+Extracts defined environment variables from Dockerfile (with comments). Supports multi-line environment variable blocks.
+
+```bash
+cat Dockerfile | ./extract-envs-from-dockerfile bash_source > some.env
+cat Dockerfile | ./extract-envs-from-dockerfile json > some.json
+cat Dockerfile | ./extract-envs-from-dockerfile bash | bash
+```
+
 ### docker-hub-tag-exists
 
 Checks if a specific tag exists in docker registry.
