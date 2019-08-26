@@ -77,6 +77,13 @@ class ForEachGithubRelease:
             if 0 < max_versions <= processed:
                 break
 
+            release_tag = self.create_release_tag(git_tag, matches)
+
+            if not self.rebuild and self.was_already_built(release_tag):
+                self.debug('Skipping "%s" as the docker tag already exists' % release_tag)
+                processed += 1
+                continue
+
             command = self.render_template(self.build_command, git_tag, matches)
 
             self.debug(' ===> %s' % command)
@@ -113,6 +120,8 @@ class ForEachGithubRelease:
 
     def was_already_built(self, docker_tag: str) -> bool:
         """ Checks if the docker tag was already pushed """
+
+        self.debug('>> Checking if docker tag "%s" was already pushed' % docker_tag)
 
         try:
             subprocess.check_output('sudo %s/docker-hub-tag-exists %s:%s' % (
@@ -166,6 +175,9 @@ if __name__ == '__main__':
                         help='Tag that will be pushed to docker registry. The same variables apply there as for ' +
                              '--exec, except %RELEASE_TAG%',
                         default='%GIT_TAG%')
+    parser.add_argument('--max-versions',
+                        help='Max versions to check/build',
+                        default=5)
     parser.add_argument('--debug',
                         help='Print instead of performing',
                         action='store_true')
@@ -181,5 +193,5 @@ if __name__ == '__main__':
         release_tag_template=parsed['release_tag_template'],
         debug=parsed['debug']
     )
-    sys.exit(0 if app.iterate_over_recent_versions(max_versions=5) else 1)
+    sys.exit(0 if app.iterate_over_recent_versions(max_versions=int(parsed['max_versions'])) else 1)
 
