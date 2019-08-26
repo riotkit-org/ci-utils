@@ -1,0 +1,185 @@
+#!/usr/bin/env python
+
+"""
+    for-each-github-release
+    =======================
+
+    Iterate over a github project tags and execute a specified build command
+
+    Example of usage:
+        ```bash
+        ./bin/for-each-github-release --repo-name phpbb/phpbb --dest-docker-repo quay.io/riotkit/phpbb --allowed-tags-regexp="(stable|release)-([0-9\.]+)$" --release-tag-template="%MATCH_1%" --exec "echo \"%GIT_TAG% - %RELEASE_TAG%\""
+        release-3.2.7 - 3.2.7
+        release-3.2.6 - 3.2.6
+        release-3.2.5 - 3.2.5
+        release-3.2.4 - 3.2.4
+        release-3.2.3 - 3.2.3
+        ```
+
+
+    Environment variables:
+      RIOTKIT_PATH=/opt/riotkit/utils/bin
+"""
+
+import requests
+import sys
+import subprocess
+import argparse
+import re
+import os
+from typing import Union, Pattern, Match
+
+
+class ForEachGithubRelease:
+    url: str
+    docker_repo_name: str
+    build_command: str
+    rebuild: bool
+    allowed_tags_regexp: Union[Pattern, None]
+    release_tag_template: str
+    _debug: bool
+
+    def __init__(self, repo_name: str, build_command: str,
+                 docker_repo_name: str, rebuild: bool,
+                 allowed_tags_regexp: Union[str, None],
+                 release_tag_template: str, debug: bool):
+
+        self.url = 'https://api.github.com/repos/%s' % repo_name
+        self.docker_repo_name = docker_repo_name
+        self.build_command = build_command
+        self.rebuild = rebuild
+        self.allowed_tags_regexp = re.compile(allowed_tags_regexp) if allowed_tags_regexp else None
+        self.release_tag_template = release_tag_template
+        self._debug = debug
+
+    def iterate_over_recent_versions(self, max_versions: int):
+        tags = self.get_available_tags()
+        to_build = {}
+        result = True
+
+        # collect items to build
+        for tag in tags:
+            properties = tag
+
+            if self.allowed_tags_regexp:
+                matches = self.allowed_tags_regexp.match(tag)
+                if not matches:
+                    self.debug(">> Not matched tag \"%s\"\n" % tag)
+                    continue
+
+                properties = matches
+
+            to_build[tag] = properties
+
+        processed = 0
+
+        for git_tag, matches in to_build.items():
+            if 0 < max_versions <= processed:
+                break
+
+            command = self.render_template(self.build_command, git_tag, matches)
+
+            self.debug(' ===> %s' % command)
+            if not self._debug and subprocess.call(command, shell=True) != 0:
+                result = False
+
+            processed += 1
+
+        return result
+
+    def create_release_tag(self, git_tag: str, matches: Match):
+        return self.render_template(self.release_tag_template, git_tag, matches, False)
+
+    def render_template(self, original_text: str, git_tag: str,
+                        matches: Match, with_release_tag: bool = True):
+
+        """ Inject variable values into the template ex. input: release-%GIT_TAG% output: release-1.0.5 """
+
+        text = original_text \
+            .replace('%GIT_TAG%', git_tag)
+
+        groups = matches.groups()
+
+        if groups:
+            for match_num in range(0, len(groups)):
+                text = text.replace('%MATCH_' + str(match_num) + '%', groups[match_num])
+
+        if with_release_tag:
+            text = text.replace('%RELEASE_TAG%', self.create_release_tag(git_tag, matches))
+
+        self.debug(' >> render_template(): "%s" into "%s"' % (original_text, text))
+
+        return text
+
+    def was_already_built(self, docker_tag: str) -> bool:
+        """ Checks if the docker tag was already pushed """
+
+        try:
+            subprocess.check_output('sudo %s/docker-hub-tag-exists %s:%s' % (
+                os.getenv('RIOTKIT_PATH', '/opt/riotkit/utils/bin'),
+                self.docker_repo_name,
+                docker_tag
+            ), shell=True)
+
+            return True
+        except subprocess.CalledProcessError:
+            return False
+
+    def get_available_tags(self) -> list:
+        """ Lists all tags from github project """
+
+        response = requests.get(self.url + '/tags').json()
+
+        return list(map(
+            lambda tag_object: str(tag_object['name']),
+            response
+        ))
+
+    def debug(self, *args):
+        if not self._debug:
+            return
+
+        for arg in args:
+            sys.stderr.write(arg + "\n")
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--repo-name',
+                        help='Github repository name',
+                        required=True)
+    parser.add_argument('--dest-docker-repo',
+                        help='Docker repository ex. quay.io/riotkit/phpbb',
+                        required=True)
+    parser.add_argument('--exec',
+                        help='Command to execute. Variables: %GIT_TAG% (original git tag name), ' +
+                             '%MATCH_0% (regexp match-0), ' +
+                             '%MATCH_N% (regexp match-N), %RELEASE_TAG% ' +
+                             '(defined by --release-tag-template)',
+                        default='echo "%GIT_TAG%"')
+    parser.add_argument('--dont-rebuild',
+                        help='Do not build the same version twice (checks existence of a docker tag for --docker-repo)',
+                        action='store_true')
+    parser.add_argument('--allowed-tags-regexp',
+                        help='Optional regexp to filter tags (eg. release_([0-9\.]+))')
+    parser.add_argument('--release-tag-template',
+                        help='Tag that will be pushed to docker registry. The same variables apply there as for ' +
+                             '--exec, except %RELEASE_TAG%',
+                        default='%GIT_TAG%')
+    parser.add_argument('--debug',
+                        help='Print instead of performing',
+                        action='store_true')
+
+    parsed = vars(parser.parse_args())
+
+    app = ForEachGithubRelease(
+        repo_name=parsed['repo_name'],
+        build_command=parsed['exec'],
+        docker_repo_name=parsed['dest_docker_repo'],
+        rebuild=not parsed['dont_rebuild'],
+        allowed_tags_regexp=parsed['allowed_tags_regexp'],
+        release_tag_template=parsed['release_tag_template'],
+        debug=parsed['debug']
+    )
+    sys.exit(0 if app.iterate_over_recent_versions(max_versions=5) else 1)
+

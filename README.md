@@ -7,9 +7,11 @@ Works with any CI, incl. Travis CI, Jenkins, Circle CI, Gitlab CI.
 
 ### Usage
 
+Just download and unpack.
+
 ```bash
 mkdir -p /opt/riotkit/utils
-wget https://github.com/riotkit-org/ci-utils/archive/master.zip -O /tmp/ci-utils.zip
+wget https://github.com/riotkit-org/ci-utils/archive/v1.0.3.zip -O /tmp/ci-utils.zip
 unzip /tmp/ci-utils.zip -d /opt/riotkit/utils
 mv /opt/riotkit/utils/ci-utils*/* /opt/riotkit/utils/
 rm -rf /opt/riotkit/utils/ci-utils*/
@@ -24,8 +26,25 @@ export PATH="/opt/riotkit/utils:$PATH"
 - curl "https://raw.githubusercontent.com/riotkit-org/ci-utils/master/ci-integration/travis.sh" -s | bash
 ```
 
+#### Stability
+
+It is not recommended to use `master`. Please use a recent release instead. `master` will always contain changes backwards incompatible, the releases are snapshots of master.
+
 Tools
 =====
+
+### for-each-github-release
+
+Iterate over a github project tags and execute a specified build command
+
+```bash
+./bin/for-each-github-release --repo-name phpbb/phpbb --dest-docker-repo quay.io/riotkit/phpbb --allowed-tags-regexp="(stable|release)-([0-9\.]+)$" --release-tag-template="%MATCH_1%" --exec "echo \"%GIT_TAG% - %RELEASE_TAG%\""
+release-3.2.7 - 3.2.7
+release-3.2.6 - 3.2.6
+release-3.2.5 - 3.2.5
+release-3.2.4 - 3.2.4
+release-3.2.3 - 3.2.3
+```
 
 ### env-to-json
 
