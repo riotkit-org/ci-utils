@@ -33,6 +33,29 @@ It is not recommended to use `master`. Please use a recent release instead. `mas
 Tools
 =====
 
+### docker-generate-readme
+
+Generates a README.md basing on the Dockerfile envs.
+
+```bash
+DOCKERFILE_PATH=Dockerfile README_TEMPLATE_PATH=README.md.j2 README_PATH=README.md RIOTKIT_PATH=./bin ./bin/docker-generate-readme
+```
+
+Example README.md:
+```jinja2
+Configuration reference
+-----------------------
+
+List of all environment variables that could be used.
+
+```yaml
+{% for env_var, attrs in DOCKERFILE_ENVS.items() %}{% if attrs[2] %}# {{ attrs[2] }}{% endif %}
+- {{ attrs[0] }} # (example value: {{ attrs[1] }})
+
+{% endfor %}
+```
+```
+
 ### for-each-github-release
 
 Iterate over a github project tags and execute a specified build command
