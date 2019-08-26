@@ -38,11 +38,13 @@ class ForEachGithubRelease:
     allowed_tags_regexp: Union[Pattern, None]
     release_tag_template: str
     _debug: bool
+    _verbose: bool
 
     def __init__(self, repo_name: str, build_command: str,
                  docker_repo_name: str, rebuild: bool,
                  allowed_tags_regexp: Union[str, None],
-                 release_tag_template: str, debug: bool):
+                 release_tag_template: str, debug: bool,
+                 verbose: bool):
 
         self.url = 'https://api.github.com/repos/%s' % repo_name
         self.docker_repo_name = docker_repo_name
@@ -51,6 +53,7 @@ class ForEachGithubRelease:
         self.allowed_tags_regexp = re.compile(allowed_tags_regexp) if allowed_tags_regexp else None
         self.release_tag_template = release_tag_template
         self._debug = debug
+        self._verbose = verbose
 
     def iterate_over_recent_versions(self, max_versions: int):
         tags = self.get_available_tags()
@@ -145,7 +148,7 @@ class ForEachGithubRelease:
         ))
 
     def debug(self, *args):
-        if not self._debug:
+        if not self._debug and not self._verbose:
             return
 
         for arg in args:
@@ -181,6 +184,9 @@ if __name__ == '__main__':
     parser.add_argument('--debug',
                         help='Print instead of performing',
                         action='store_true')
+    parser.add_argument('--verbose',
+                        help='Print all messages like --debug, but also perform',
+                        action='store_true')
 
     parsed = vars(parser.parse_args())
 
@@ -191,7 +197,8 @@ if __name__ == '__main__':
         rebuild=not parsed['dont_rebuild'],
         allowed_tags_regexp=parsed['allowed_tags_regexp'],
         release_tag_template=parsed['release_tag_template'],
-        debug=parsed['debug']
+        debug=parsed['debug'],
+        verbose=parsed['verbose']
     )
     sys.exit(0 if app.iterate_over_recent_versions(max_versions=int(parsed['max_versions'])) else 1)
 
