@@ -10,6 +10,7 @@
 import sys
 import typing
 import json
+import shlex
 from collections import namedtuple
 
 EnvironmentVariable = namedtuple('EnvironmentVariable', 'name value comment')
@@ -24,7 +25,7 @@ class ExtractEnvsFromDockerfile:
         out_vars = self.get_envs(content)
 
         if out_format == 'bash_source':
-            print('export DOCKERFILE_ENVS=\'%s\'' % json.dumps(out_vars))
+            print('export DOCKERFILE_ENVS=%s' % shlex.quote(json.dumps(out_vars)))
         elif out_vars == 'json':
             print(json.dumps(out_vars))
         else:

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 DOCKERFILE_PATH=${DOCKERFILE_PATH:-Dockerfile}
 README_TEMPLATE_PATH=${README_TEMPLATE_PATH:-README.md.j2}
 README_PATH=${README_PATH:-README.md}
@@ -12,8 +14,13 @@ if [[ ! -f "${DOCKERFILE_PATH}" ]] || [[ ! -f "${README_TEMPLATE_PATH}" ]]; then
 fi
 
 # will produce DOCKERFILE_ENVS variable to include in j2cli
-cat "${DOCKERFILE_PATH}" | $RIOTKIT_PATH/extract-envs-from-dockerfile bash_source > .env.tmp; \
-source .env.tmp; \
+echo " >> Extracting env variables from Dockerfile"
+cat "${DOCKERFILE_PATH}" | $RIOTKIT_PATH/extract-envs-from-dockerfile bash_source > .env.tmp;
+
+echo " >> Importing into the shell"
+source .env.tmp
+
+echo " >> Rendering the file"
 $RIOTKIT_PATH/env-to-json parse_json | j2 "${README_TEMPLATE_PATH}" -f json > .README.md.tmp
 
 mv .README.md.tmp "${README_PATH}"
