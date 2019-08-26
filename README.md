@@ -54,7 +54,6 @@ List of all environment variables that could be used.
 
 {% endfor %}
 ```
-```
 
 ### for-each-github-release
 
