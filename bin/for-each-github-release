@@ -27,6 +27,7 @@ import subprocess
 import argparse
 import re
 import os
+import time
 from typing import Union, Pattern, Match
 
 
@@ -137,15 +138,22 @@ class ForEachGithubRelease:
         except subprocess.CalledProcessError:
             return False
 
-    def get_available_tags(self) -> list:
+    def get_available_tags(self, retries: int = 5) -> list:
         """ Lists all tags from github project """
 
-        response = requests.get(self.url + '/tags').json()
+        try:
+            response = requests.get(self.url + '/tags').json()
 
-        return list(map(
-            lambda tag_object: str(tag_object['name']),
-            response
-        ))
+            return list(map(
+                lambda tag_object: str(tag_object['name']),
+                response
+            ))
+        except TypeError:
+            if retries <= 0:
+                raise
+
+            time.sleep(1)
+            return self.get_available_tags(retries - 1)
 
     def debug(self, *args):
         if not self._debug and not self._verbose:
