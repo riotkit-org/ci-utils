@@ -23,6 +23,8 @@ export PATH="/opt/riotkit/utils:$PATH"
 ### Usage on Travis
 
 ```yaml
+# add this first line to select version v1.0.3, the script will read a zip placed at /tmp/ci-utils.zip
+- wget https://github.com/riotkit-org/ci-utils/archive/v1.0.3.zip -O /tmp/ci-utils.zip
 - curl "https://raw.githubusercontent.com/riotkit-org/ci-utils/master/ci-integration/travis.sh" -s | bash
 ```
 
