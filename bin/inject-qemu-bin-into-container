@@ -1,0 +1,16 @@
+#!/bin/bash
+
+IMAGE=$1
+
+echo " >> Injecting qemu arm binaries into ${IMAGE}"
+
+set -xe
+
+docker rm -f tmp_qemu_container 2>/dev/null > /dev/null || true
+docker pull ${IMAGE}
+docker create --name tmp_qemu_container ${IMAGE}
+docker cp ./arm/usr tmp_qemu_container:/
+docker export tmp_qemu_container > /tmp/tmp_qemu_container.tar.gz
+cat /tmp/tmp_qemu_container.tar.gz | docker import - ${IMAGE}
+rm /tmp/tmp_qemu_container.tar.gz
+docker rm -f tmp_qemu_container 2>/dev/null > /dev/null || true
