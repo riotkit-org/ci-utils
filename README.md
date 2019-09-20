@@ -38,13 +38,14 @@ Tools
 ### inject-qemu-bin-into-container
 
 Inject qemu static binaries into the **image**.
+The static binaries are placed in this repository at `./arm` directory.
 
 **Warning: It imports and exports the image**
 
 
 Example usage:
 ```bash
-inject-qemu-bin-into-container php:7.2
+./bin/inject-qemu-bin-into-container php:7.2
 ```
 
 ### setup-travis-arm-builds
@@ -117,7 +118,7 @@ cat Dockerfile | ./extract-envs-from-dockerfile json > some.json
 cat Dockerfile | ./extract-envs-from-dockerfile bash | bash
 ```
 
-### docker-hub-tag-exists
+### docker-tag-exists
 
 Checks if a specific tag exists in docker registry.
 
@@ -128,9 +129,9 @@ a) When image is from quay.io and we did not force using manifest, then a docker
 b) When we call with second parameter "using_manifest", then a `docker manifest inspect` will be used (requires experimental docker features enabled)
 
 ```bash
-./bin/docker-hub-tag-exists php:7.3
-./bin/docker-hub-tag-exists php:7.3 using_manifest
-./bin/docker-hub-tag-exists quay.io/riotkit/php-app:7.3-x86_64
+./bin/docker-tag-exists php:7.3
+./bin/docker-tag-exists php:7.3 using_manifest
+./bin/docker-tag-exists quay.io/riotkit/php-app:7.3-x86_64
 ```
 
 ### use-experimental-docker
