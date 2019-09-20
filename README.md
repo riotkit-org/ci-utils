@@ -161,3 +161,28 @@ When specified valid username and password, then a login attempt and `SELECT 1;`
 # wait 5 seconds or less
 ./bin/wait-for-mysql-to-be-ready --host db_mysql --port 3306 --username root --password root --timeout 5
 ```
+
+Keywords
+--------
+
+arm on travis, arm builds, arm32v7, arm64 on travis, aarch64 on travis, qemu-arm-static, 
+waiting for mysql to getup, docker waiting for mysql, wait for mysql to be ready,
+autodocs, automatic documentation, documentation form dockerfile,
+github tags iteration, for each github release, github release automation, ci automation scripts,
+check docker tag exists, check registry tag pushed, check docker tag pushed, inject qemu into container,
+inject qemu into docker, raspberry pi builds, raspberry pi ci, raspberry pi travis, rpi travis, rpi docker, rasbperry pi docker
+
+Copyleft
+--------
+
+Created by **RiotKit Collective**, a libertarian, grassroot, non-profit organization providing technical support for the non-profit Anarchist movement.
+
+Check out those initiatives:
+- RiotKit (https://riotkit.org)
+- International Workers Association (https://iwa-ait.org)
+- Anarchistyczne FAQ (http://anarchizm.info) a translation of Anarchist FAQ (https://theanarchistlibrary.org/library/the-anarchist-faq-editorial-collective-an-anarchist-faq)
+- Federacja Anarchistyczna (http://federacja-anarchistyczna.pl)
+- Związek Syndykalistów Polski (https://zsp.net.pl) (Polish section of IWA-AIT)
+- Komitet Obrony Praw Lokatorów (https://lokatorzy.info.pl)
+- Solidarity Federation (https://solfed.org.uk)
+- Priama Akcia (https://priamaakcia.sk)
