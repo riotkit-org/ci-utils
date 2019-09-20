@@ -2,8 +2,18 @@ RiotKit's Continuous Integration Utils
 ======================================
 
 Set of scripts commonly used on CI.
+Requires Python 3.6+, Bash, Docker, MySQL client, nc (regarding what you need to use).
+Only basic shell utils and basic Python libraries are used, so the requirements should be met easily by any environment.
 
-Works with any CI, incl. Travis CI, Jenkins, Circle CI, Gitlab CI.
+Works with any CI, incl. Travis CI, Jenkins, Circle CI, Gitlab CI, Boautomate.
+
+### Stability
+
+The recent development version is placed at `master` branch.
+Very frequently there are tagged versions using the **semantic versioning** convention.
+
+Please never use **master** at your CI or at your docker containers, because **master** can unexpectedly change.
+See Travis-CI integration section to see how to install the tools.
 
 ### Usage
 
@@ -20,7 +30,7 @@ rm /tmp/ci-utils.zip
 export PATH="/opt/riotkit/utils:$PATH"
 ```
 
-### Usage on Travis
+### Usage on Travis-CI
 
 ```yaml
 # add this first line to select version v1.0.3, the script will read a zip placed at /tmp/ci-utils.zip
