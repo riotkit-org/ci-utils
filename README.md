@@ -38,10 +38,6 @@ export PATH="/opt/riotkit/utils:$PATH"
 - curl "https://raw.githubusercontent.com/riotkit-org/ci-utils/master/ci-integration/travis.sh" -s | bash
 ```
 
-#### Stability
-
-It is not recommended to use `master`. Please use a recent release instead. `master` will always contain changes backwards incompatible, the releases are snapshots of master.
-
 Tools
 =====
 
