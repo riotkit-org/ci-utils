@@ -35,6 +35,34 @@ It is not recommended to use `master`. Please use a recent release instead. `mas
 Tools
 =====
 
+### inject-qemu-bin-into-container
+
+Inject qemu static binaries into the **image**.
+
+**Warning: It imports and exports the image**
+
+
+Example usage:
+```bash
+inject-qemu-bin-into-container php:7.2
+```
+
+### setup-travis-arm-builds
+
+Makes Travis-CI build able to build ARM images.
+
+Example .travis.yml snippet:
+```yaml
+before_script:
+    # dependencies
+    - pip install j2cli requests
+    - wget https://github.com/riotkit-org/ci-utils/archive/master.zip -O /tmp/ci-utils.zip  # change master to a release tag only here (version)
+    - curl "https://raw.githubusercontent.com/riotkit-org/ci-utils/master/ci-integration/travis.sh" -s | bash
+
+    # activate ARM builds on travis
+    - /opt/riotkit/utils/bin/setup-travis-arm-builds
+```
+
 ### docker-generate-readme
 
 Generates a README.md basing on the Dockerfile envs.
