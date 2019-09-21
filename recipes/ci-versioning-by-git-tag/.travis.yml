@@ -1,0 +1,18 @@
+language: python                       # Language actually does not matter much, when building docker images
+if: branch = master OR tag IS present  # Security reasons, prevent leaking of passwords in pull requests
+python: 3.6
+services:
+    - docker
+
+before_script:
+    - echo "$DOCKER_PASSWORD" | sudo docker login -u "$DOCKER_USERNAME" --password-stdin
+    - echo "$QUAY_PASSWORD" | sudo docker login -u "$QUAY_USERNAME" --password-stdin quay.io
+
+# Split into stages to avoid build timeout. Default max execution time is 50 minutes for each job
+jobs:
+  include:
+    - stage: Build recent x86_64 image
+      script: make build ARCH=x86_64 GIT_TAG=${TRAVIS_TAG} PUSH=true
+
+    - stage: Build recent ARM image
+      script: make build ARCH=arm GIT_TAG=${TRAVIS_TAG} PUSH=true

@@ -38,6 +38,10 @@ export PATH="/opt/riotkit/utils:$PATH"
 - curl "https://raw.githubusercontent.com/riotkit-org/ci-utils/master/ci-integration/travis.sh" -s | bash
 ```
 
+### Recipes
+
+- [Releasing a version of an application by pushing a tag to GIT](./recipes/ci-versioning-by-git-tag)
+
 Tools
 =====
 
