@@ -166,6 +166,20 @@ When specified valid username and password, then a login attempt and `SELECT 1;`
 ./bin/wait-for-mysql-to-be-ready --host db_mysql --port 3306 --username root --password root --timeout 5
 ```
 
+### find-closest-github-release
+
+Finds an application release closest to given number. Prefers an older version than newer for compatibility.
+
+**Example of usage:**
+```bash
+./bin/find-closest-github-release taigaio/taiga-front-dist 3.5.14-stable
+```
+
+**Example output:**
+```
+3.4.6-stable
+```
+
 Keywords
 --------
 

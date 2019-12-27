@@ -152,7 +152,7 @@ class ForEachGithubRelease:
             if retries <= 0:
                 raise
 
-            time.sleep(1)
+            time.sleep(5)
             return self.get_available_tags(retries - 1)
 
     def debug(self, *args):
