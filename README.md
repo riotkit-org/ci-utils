@@ -15,17 +15,26 @@ Very frequently there are tagged versions using the **semantic versioning** conv
 Please never use **master** at your CI or at your docker containers, because **master** can unexpectedly change.
 See Travis-CI integration section to see how to install the tools.
 
-### Usage
+### Standard usage
 
 Just download and unpack, it never was so easy. Please pay extra attention to the version.
 Tagged version gives you guarantee that it will always works the same, as expected.
 
 ```bash
 # optional environment variables:
-# - CONFIGURE_PROFILE: True/False. Defaults to True. (should the script configure /etc/profile?)
+# - CONFIGURE_PROFILE: True/False. Defaults to True (should the script configure /etc/profile?)
 # - INSTALL_DIR: defaults to /opt/riotkit/utils
+# - FORCE_INSTALL: True/False. Defaults to False (Set True to overwrite previous installation of same version)
 
 export RIOTKIT_UTILS_VERSION=2.2.0 && curl "https://raw.githubusercontent.com/riotkit-org/ci-utils/${RIOTKIT_UTILS_VERSION}/ci-integration/any.sh" -s | bash
+```
+
+### Usage in Docker image
+
+```Dockerfile
+# Install RiotKit utils
+ENV RIOTKIT_UTILS_VERSION="2.2.0"
+RUN curl "https://raw.githubusercontent.com/riotkit-org/ci-utils/$RIOTKIT_UTILS_VERSION/ci-integration/any.sh" -s | bash
 ```
 
 ### Usage on Travis-CI
