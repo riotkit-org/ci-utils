@@ -24,7 +24,7 @@ else
 fi
 
 set -xe
-wget "https://github.com/riotkit-org/ci-utils/archive/${RIOTKIT_UTILS_VERSION}.zip" -O /tmp/ci-utils.zip
+wget "https://github.com/riotkit-org/ci-utils/archive/${URL_VERSION}.zip" -O /tmp/ci-utils.zip
 mkdir -p "${INSTALL_DIR}"
 unzip -o /tmp/ci-utils.zip -d "${INSTALL_DIR}"
 
