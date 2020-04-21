@@ -5,7 +5,7 @@ Set of scripts commonly used on CI.
 Requires Python 3.6+, Bash, Docker, MySQL client, nc (regarding what you need to use).
 Only basic shell utils and basic Python libraries are used, so the requirements should be met easily by any environment.
 
-Works with any CI, incl. Travis CI, Jenkins, Circle CI, Gitlab CI, Boautomate.
+Works with any CI, incl. Travis CI, Jenkins, Circle CI, Gitlab CI.
 
 ### Stability
 
@@ -17,17 +17,15 @@ See Travis-CI integration section to see how to install the tools.
 
 ### Usage
 
-Just download and unpack.
+Just download and unpack, it never was so easy. Please pay extra attention to the version.
+Tagged version gives you guarantee that it will always works the same, as expected.
 
 ```bash
-mkdir -p /opt/riotkit/utils
-wget https://github.com/riotkit-org/ci-utils/archive/v1.0.3.zip -O /tmp/ci-utils.zip
-unzip /tmp/ci-utils.zip -d /opt/riotkit/utils
-mv /opt/riotkit/utils/ci-utils*/* /opt/riotkit/utils/
-rm -rf /opt/riotkit/utils/ci-utils*/
-rm /tmp/ci-utils.zip
+# optional environment variables:
+# - CONFIGURE_PROFILE: True/False. Defaults to True. (should the script configure /etc/profile?)
+# - INSTALL_DIR: defaults to /opt/riotkit/utils
 
-export PATH="/opt/riotkit/utils:$PATH"
+export RIOTKIT_UTILS_VERSION=2.2.0 && curl "https://raw.githubusercontent.com/riotkit-org/ci-utils/${RIOTKIT_UTILS_VERSION}/ci-integration/any.sh" -s | bash
 ```
 
 ### Usage on Travis-CI
@@ -164,6 +162,19 @@ When specified valid username and password, then a login attempt and `SELECT 1;`
 ```bash
 # wait 5 seconds or less
 ./bin/wait-for-mysql-to-be-ready --host db_mysql --port 3306 --username root --password root --timeout 5
+```
+
+### wait-for-db-to-be-ready
+
+Extension of `wait-for-mysql-to-be-ready` to support multiple databases.
+
+**Requirements:**
+- postgresql client - pg_isready (optional)
+- nc
+- mysql client (optional)
+
+```bash
+./bin/wait-for-db-to-be-ready --type postgres --host 127.0.0.1 --port 5432
 ```
 
 ### find-closest-github-release
