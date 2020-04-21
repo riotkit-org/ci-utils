@@ -3,7 +3,7 @@
 RIOTKIT_UTILS_VERSION=${RIOTKIT_UTILS_VERSION:-""}
 CONFIGURE_PROFILE=${CONFIGURE_PROFILE:-True}
 FORCE_INSTALL=${FORCE_INSTALL:-False}
-INSTALL_DIR=${/opt/riotkit/utils:-/opt/riotkit/utils}
+INSTALL_DIR=${INSTALL_DIR:-/opt/riotkit/utils}
 
 if [[ -d "${INSTALL_DIR}/ci-utils-${RIOTKIT_UTILS_VERSION}" ]] && [[ "${FORCE_INSTALL}" == "False" ]]; then
     echo " >> RiotKit Utils v${RIOTKIT_UTILS_VERSION} already installed, skipping."
