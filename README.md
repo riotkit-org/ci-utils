@@ -37,6 +37,21 @@ ENV RIOTKIT_UTILS_VERSION="2.2.0"
 RUN curl "https://raw.githubusercontent.com/riotkit-org/ci-utils/$RIOTKIT_UTILS_VERSION/ci-integration/any.sh" -s | bash
 ```
 
+### Usage in Makefile
+
+```makefile
+RIOTKIT_UTILS_VERSION=2.2.0
+
+# ...
+
+_download_libs:
+	@export RIOTKIT_UTILS_VERSION=${RIOTKIT_UTILS_VERSION} \
+	&& export CONFIGURE_PROFILE=False \
+	&& export FORCE_INSTALL=False \
+	&& export INSTALL_DIR=./.helpers \
+	&& curl "https://raw.githubusercontent.com/riotkit-org/ci-utils/v${RIOTKIT_UTILS_VERSION}/ci-integration/any.sh" -s 2>/dev/null | bash
+```
+
 ### Usage on Travis-CI
 
 ```yaml
