@@ -34,3 +34,30 @@ Finds a release number closest to specified.
 ```bash
 rkd :github:find-closest-release --repository riotkit-org/file-repository -c 1.3
 ```
+
+:utils:env-to-json
+------------------
+
+Dumps all environment variables into JSON
+
+```bash
+rkd :utils:env-to-json
+
+# parse any JSON value one dimension deep
+rkd :utils:env-to-json --parse-json
+```
+
+:docker:tag-exists
+------------------
+
+Checks if a docker image has a tag. Requires docker client, daemon and permissions to the daemon.
+
+**Examples:**
+
+```bash
+# will result in a success
+sudo rkd :docker:tag-exists -i alpine:latest
+
+# will result in a failure
+sudo rkd :docker:tag-exists -i alpine:not-existing
+```
