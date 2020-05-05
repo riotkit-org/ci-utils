@@ -1,241 +1,36 @@
-RiotKit's Continuous Integration Utils
-======================================
+RiotKit's tools
+===============
 
-Set of scripts commonly used on CI.
-Requires Python 3.6+, Bash, Docker, MySQL client, nc (regarding what you need to use).
-Only basic shell utils and basic Python libraries are used, so the requirements should be met easily by any environment.
+Set of generic tools dedicated to be used inside of Docker images, in applications deployment and on Continuous Integration systems.
+The tools are provided as Python modules runned by RKD - RiotKit Do.
 
-Works with any CI, incl. Travis CI, Jenkins, Circle CI, Gitlab CI.
+*Previously: RiotKit CI tools*
 
-### Stability
+:github:for-each-release
+------------------------
 
-The recent development version is placed at `master` branch.
-Very frequently there are tagged versions using the **semantic versioning** convention.
+Iterate over recent X github releases and execute a task.
 
-Please never use **master** at your CI or at your docker containers, because **master** can unexpectedly change.
-See Travis-CI integration section to see how to install the tools.
-
-### Standard usage
-
-Just download and unpack, it never was so easy. Please pay extra attention to the version.
-Tagged version gives you guarantee that it will always works the same, as expected.
+**Examples:**
 
 ```bash
-# optional environment variables:
-# - CONFIGURE_PROFILE: True/False. Defaults to True (should the script configure /etc/profile?)
-# - INSTALL_DIR: defaults to /opt/riotkit/utils
-# - FORCE_INSTALL: True/False. Defaults to False (Set True to overwrite previous installation of same version)
+# build all versions of File Repository that matches tags v{NUMBER} eg. v3.0.0
+# for each version execute: rkd :build --version=%MATCH_0% (it can be any command)
 
-export RIOTKIT_UTILS_VERSION=2.2.0 && curl "https://raw.githubusercontent.com/riotkit-org/ci-utils/${RIOTKIT_UTILS_VERSION}/ci-integration/any.sh" -s | bash
+rkd :github:for-each-release \
+    --repository=riotkit-org/file-repository \
+    --exec 'rkd :build --version=%MATCH_0%' \
+    --dest-docker-repo quay.io/riotkit/file-repository \
+    --allowed-tags-regexp 'v([0-9.]+)'
 ```
 
-### Usage in Docker image
+:github:find-closest-release
+----------------------------
 
-```Dockerfile
-# Install RiotKit utils
-ENV RIOTKIT_UTILS_VERSION="2.2.0"
-RUN curl "https://raw.githubusercontent.com/riotkit-org/ci-utils/$RIOTKIT_UTILS_VERSION/ci-integration/any.sh" -s | bash
-```
+Finds a release number closest to specified.
 
-### Usage in Makefile
-
-```makefile
-RIOTKIT_UTILS_VERSION=2.2.0
-
-# ...
-
-_download_libs:
-	@export RIOTKIT_UTILS_VERSION=${RIOTKIT_UTILS_VERSION} \
-	&& export CONFIGURE_PROFILE=False \
-	&& export FORCE_INSTALL=False \
-	&& export INSTALL_DIR=./.helpers \
-	&& curl "https://raw.githubusercontent.com/riotkit-org/ci-utils/v${RIOTKIT_UTILS_VERSION}/ci-integration/any.sh" -s 2>/dev/null | bash
-```
-
-### Usage on Travis-CI
-
-```yaml
-# add this first line to select version v1.0.3, the script will read a zip placed at /tmp/ci-utils.zip
-- wget https://github.com/riotkit-org/ci-utils/archive/v1.0.3.zip -O /tmp/ci-utils.zip
-- curl "https://raw.githubusercontent.com/riotkit-org/ci-utils/master/ci-integration/travis.sh" -s | bash
-```
-
-### Recipes
-
-- [Releasing a version of an application by pushing a tag to GIT](./recipes/ci-versioning-by-git-tag)
-
-Tools
-=====
-
-### inject-qemu-bin-into-container
-
-Inject qemu static binaries into the **image**.
-The static binaries are placed in this repository at `./arm` directory.
-
-**Warning: It imports and exports the image**
-
-
-Example usage:
-```bash
-./bin/inject-qemu-bin-into-container php:7.2
-```
-
-### setup-travis-arm-builds
-
-Makes Travis-CI build able to build ARM images.
-
-Example .travis.yml snippet:
-```yaml
-before_script:
-    # dependencies
-    - pip install j2cli requests
-    - wget https://github.com/riotkit-org/ci-utils/archive/master.zip -O /tmp/ci-utils.zip  # change master to a release tag only here (version)
-    - curl "https://raw.githubusercontent.com/riotkit-org/ci-utils/master/ci-integration/travis.sh" -s | bash
-
-    # activate ARM builds on travis
-    - /opt/riotkit/utils/bin/setup-travis-arm-builds
-```
-
-### docker-generate-readme
-
-Generates a README.md basing on the Dockerfile envs.
+**Examples:**
 
 ```bash
-DOCKERFILE_PATH=Dockerfile README_TEMPLATE_PATH=README.md.j2 README_PATH=README.md RIOTKIT_PATH=./bin ./bin/docker-generate-readme
+rkd :github:find-closest-release --repository riotkit-org/file-repository -c 1.3
 ```
-
-Example README.md:
-```jinja2
-Configuration reference
------------------------
-
-List of all environment variables that could be used.
-
-```yaml
-{% for env_var, attrs in DOCKERFILE_ENVS.items() %}{% if attrs[2] %}# {{ attrs[2] }}{% endif %}
-- {{ attrs[0] }} # (example value: {{ attrs[1] }})
-
-{% endfor %}
-```
-
-### for-each-github-release
-
-Iterate over a github project tags and execute a specified build command
-
-```bash
-./bin/for-each-github-release --repo-name phpbb/phpbb --dest-docker-repo quay.io/riotkit/phpbb --allowed-tags-regexp="(stable|release)-([0-9\.]+)$" --release-tag-template="%MATCH_1%" --exec "echo \"%GIT_TAG% - %RELEASE_TAG%\""
-release-3.2.7 - 3.2.7
-release-3.2.6 - 3.2.6
-release-3.2.5 - 3.2.5
-release-3.2.4 - 3.2.4
-release-3.2.3 - 3.2.3
-```
-
-### env-to-json
-
-Dumps environment variables of current shell scope into the json.
-
-```bash
-./bin/env-to-json parse_json # will also parse into native json all variable values that are json
-./bin/env-to-json
-```
-
-### extract-envs-from-dockerfile
-
-Extracts defined environment variables from Dockerfile (with comments). Supports multi-line environment variable blocks.
-
-```bash
-cat Dockerfile | ./extract-envs-from-dockerfile bash_source > some.env
-cat Dockerfile | ./extract-envs-from-dockerfile json > some.json
-cat Dockerfile | ./extract-envs-from-dockerfile bash | bash
-```
-
-### docker-tag-exists
-
-Checks if a specific tag exists in docker registry.
-
-**NOTICE: May require root privileges!**
-
-Scenarios:
-a) When image is from quay.io and we did not force using manifest, then a docker pull will be made with a timeout
-b) When we call with second parameter "using_manifest", then a `docker manifest inspect` will be used (requires experimental docker features enabled)
-
-```bash
-./bin/docker-tag-exists php:7.3
-./bin/docker-tag-exists php:7.3 using_manifest
-./bin/docker-tag-exists quay.io/riotkit/php-app:7.3-x86_64
-```
-
-### use-experimental-docker
-
-Sets the local docker client to use experimental features.
-
-```bash
-./bin/use-experimental-docker
-```
-
-### wait-for-mysql-to-be-ready
-
-Waits for the MySQL server to be up and running. When only host specified, then only port will be pinged.
-When specified valid username and password, then a login attempt and `SELECT 1;` will be attempted.
-
-**Requirements:**
-- nc
-- mysql shell client (optional, but good to have)
-
-```bash
-# wait 5 seconds or less
-./bin/wait-for-mysql-to-be-ready --host db_mysql --port 3306 --username root --password root --timeout 5
-```
-
-### wait-for-db-to-be-ready
-
-Extension of `wait-for-mysql-to-be-ready` to support multiple databases.
-
-**Requirements:**
-- postgresql client - pg_isready (optional)
-- nc
-- mysql client (optional)
-
-```bash
-./bin/wait-for-db-to-be-ready --type postgres --host 127.0.0.1 --port 5432
-```
-
-### find-closest-github-release
-
-Finds an application release closest to given number. Prefers an older version than newer for compatibility.
-
-**Example of usage:**
-```bash
-./bin/find-closest-github-release taigaio/taiga-front-dist 3.5.14-stable
-```
-
-**Example output:**
-```
-3.4.6-stable
-```
-
-Keywords
---------
-
-arm on travis, arm builds, arm32v7, arm64 on travis, aarch64 on travis, qemu-arm-static, 
-waiting for mysql to getup, docker waiting for mysql, wait for mysql to be ready,
-autodocs, automatic documentation, documentation form dockerfile,
-github tags iteration, for each github release, github release automation, ci automation scripts,
-check docker tag exists, check registry tag pushed, check docker tag pushed, inject qemu into container,
-inject qemu into docker, raspberry pi builds, raspberry pi ci, raspberry pi travis, rpi travis, rpi docker, rasbperry pi docker
-
-Copyleft
---------
-
-Created by **RiotKit Collective**, a libertarian, grassroot, non-profit organization providing technical support for the non-profit Anarchist movement.
-
-Check out those initiatives:
-- RiotKit (https://riotkit.org)
-- International Workers Association (https://iwa-ait.org)
-- Anarchistyczne FAQ (http://anarchizm.info) a translation of Anarchist FAQ (https://theanarchistlibrary.org/library/the-anarchist-faq-editorial-collective-an-anarchist-faq)
-- Federacja Anarchistyczna (http://federacja-anarchistyczna.pl)
-- Związek Syndykalistów Polski (https://zsp.net.pl) (Polish section of IWA-AIT)
-- Komitet Obrony Praw Lokatorów (https://lokatorzy.info.pl)
-- Solidarity Federation (https://solfed.org.uk)
-- Priama Akcia (https://priamaakcia.sk)
