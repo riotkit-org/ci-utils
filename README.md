@@ -61,3 +61,12 @@ sudo rkd :docker:tag-exists -i alpine:latest
 # will result in a failure
 sudo rkd :docker:tag-exists -i alpine:not-existing
 ```
+
+:docker:extract-envs-from-dockerfile
+------------------------------------
+
+Extract list of environment variables, their descriptions and example values from a Dockerfile.
+
+```bash
+rkd :docker:extract-envs-from-dockerfile -f ~/Projekty/riotkit/riotkit/docker-taiga/Dockerfile --format bash_source
+```
