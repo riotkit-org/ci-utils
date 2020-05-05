@@ -2,6 +2,7 @@
 import os
 import json
 import shlex
+from jinja2 import Template
 from typing import List, Dict
 from argparse import ArgumentParser
 from rkd.contract import TaskInterface, ExecutionContext
@@ -57,9 +58,12 @@ class ExtractEnvsFromDockerfileTask(TaskInterface):
         out_format = context.args['format']
         file_path = context.args['file']
 
+        self._io.out(self.extract(out_format, file_path))
+        return True
+
+    def extract(self, out_format: str, file_path: str) -> str:
         if not os.path.isfile(file_path):
-            self._io.error_msg('Cannot find Dockerfile at path "%s"' % file_path)
-            return False
+            raise Exception('Cannot find Dockerfile at path "%s"' % file_path)
 
         with open(file_path, 'rb') as f:
             content = f.read().decode('utf-8')
@@ -67,14 +71,16 @@ class ExtractEnvsFromDockerfileTask(TaskInterface):
         out_vars = self.get_envs(content)
 
         if out_format == 'bash_source':
-            self._io.outln('export DOCKERFILE_ENVS=%s' % shlex.quote(json.dumps(out_vars)))
+            return 'export DOCKERFILE_ENVS=%s' % shlex.quote(json.dumps(out_vars))
         elif out_format == 'json':
-            self._io.outln(json.dumps(out_vars, indent=2, sort_keys=True))
+            return json.dumps(out_vars, indent=2, sort_keys=True)
         else:
-            for name, out_var in out_vars.items():
-                self._io.outln('export %s=%s' % (out_var.name, out_var.value))
+            buf = ''
 
-        return True
+            for name, out_var in out_vars.items():
+                buf += "export %s=%s\n" % (out_var.name, out_var.value)
+
+            return buf
 
     def configure_argparse(self, parser: ArgumentParser):
         parser.add_argument('--file', '-f', required=True, help='Path to Dockerfile to read as input')
@@ -148,3 +154,53 @@ class ExtractEnvsFromDockerfileTask(TaskInterface):
                 break
 
         return extracted
+
+
+class GenerateReadmeTask(TaskInterface):
+    """ Generate README.md.j2 into README.md considering env variables from Dockerfile """
+
+    def get_name(self) -> str:
+        return ':generate-readme'
+
+    def get_group_name(self) -> str:
+        return ':docker'
+
+    def execute(self, context: ExecutionContext) -> bool:
+        readme_path = context.args['target_path']
+        readme_template_path = context.args['template']
+        dockerfile_path = context.args['dockerfile']
+
+        if not os.path.isfile(readme_template_path):
+            self._io.error_msg('Path to template is not valid')
+            return False
+
+        if not os.path.isfile(dockerfile_path):
+            self._io.error_msg('Path to Dockerfile is not valid')
+            return False
+
+        variables = self.extract_envs_from_dockerfile(dockerfile_path)
+
+        with open(readme_template_path, 'rb') as f:
+            rendered = Template(f.read().decode('utf-8')).render({'DOCKERFILE_ENVS': variables})
+
+            if readme_path:
+                with open(readme_path, 'w') as rw:
+                    rw.write(rendered)
+            else:
+                self._io.out(rendered)
+
+        return True
+
+    def extract_envs_from_dockerfile(self, dockerfile_path: str):
+        """ Extracts environment variables list, values and descriptions from the Dockerfile """
+
+        task = ExtractEnvsFromDockerfileTask()
+        self.copy_internal_dependencies(task)
+        return json.loads(task.extract('json', dockerfile_path))
+
+    def configure_argparse(self, parser: ArgumentParser):
+        parser.add_argument('--template', '-rt', required=True,
+                            help='Readme template path (in Jinja2 format)')
+        parser.add_argument('--target-path', '-t', required=False, default='',
+                            help='Path where to write the README. If not specified, then stdout will be preferred')
+        parser.add_argument('--dockerfile', '-f', required=True, help='Path to the Dockerfile to parse')

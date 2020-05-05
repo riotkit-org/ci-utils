@@ -70,3 +70,23 @@ Extract list of environment variables, their descriptions and example values fro
 ```bash
 rkd :docker:extract-envs-from-dockerfile -f ~/Projekty/riotkit/riotkit/docker-taiga/Dockerfile --format bash_source
 ```
+
+:docker:generate-readme
+-----------------------
+
+Generates a README.md file from README.md.j2 template, considering environment variables from a Dockerfile.
+
+```bash
+rkd :docker:generate-readme --template docker-taiga/README.md.j2 --dockerfile docker-taiga/Dockerfile
+```
+
+```jinja2
+#### Configuration reference
+
+List of all environment variables that could be used.
+
+{% for env_var, attrs in DOCKERFILE_ENVS.items() %}{% if attrs[2] %}# {{ attrs[2] }}{% endif %}
+- {{ attrs[0] }} # (default: {{ attrs[1] }})
+
+{% endfor %}
+```

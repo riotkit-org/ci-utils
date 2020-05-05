@@ -1,4 +1,0 @@
-#!/bin/bash
-
-# Shortcut kept for compatibility with older versions of RiotKit's Toolkit
-exec wait-for-db-to-be-ready --type=mysql "$@"
