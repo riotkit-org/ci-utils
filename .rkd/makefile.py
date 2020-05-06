@@ -2,6 +2,7 @@
 from rkt_utils.envtojson import EnvToJsonTask
 from rkt_utils.github import FindClosestReleaseTask, ForEachGithubReleaseTask
 from rkt_utils.docker import DockerTagExistsTask, ExtractEnvsFromDockerfileTask, GenerateReadmeTask
+from rkt_armutils.docker import imports as TravisARMImports
 from rkd.syntax import TaskDeclaration
 from rkd.standardlib.docker import imports as DockerImports
 from rkd.standardlib.python import imports as PythonImports
@@ -14,6 +15,6 @@ IMPORTS = [
             TaskDeclaration(ExtractEnvsFromDockerfileTask()),
             TaskDeclaration(GenerateReadmeTask())
           ] \
-          + DockerImports() + PythonImports()
+          + DockerImports() + PythonImports() + TravisARMImports()
 
 TASKS = []

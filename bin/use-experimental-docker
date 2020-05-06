@@ -1,4 +1,0 @@
-#!/bin/bash
-
-echo " >> Using experimental docker version"
-echo '{"experimental": "enabled"}' > ~/.docker/config.json
