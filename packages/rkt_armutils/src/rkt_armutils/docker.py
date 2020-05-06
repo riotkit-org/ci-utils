@@ -13,7 +13,7 @@ class InjectQEMUBinaryIntoContainerTask(BaseShellCommandWithArgumentParsingTask)
             parser.add_argument('--image', '-i', required=True, help='Image name with tag')
 
         super().__init__(
-            name=':inject-qemmu-bins',
+            name=':inject-qemu-bins',
             group=':docker',
             description='Injects QEMU binaries for emulation on x86_64 platform',
             arguments_definition=handle_args,
