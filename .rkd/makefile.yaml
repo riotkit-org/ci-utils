@@ -33,3 +33,5 @@ tasks:
                     args['token'],
                     ' --test ' if args['test'] else ''
                 ))
+
+            return True
