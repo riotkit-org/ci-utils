@@ -1,0 +1,32 @@
+language: python
+os: linux
+if: branch = master or tag IS present
+python: 3.6
+
+before_script: pip install rkd==0.3
+
+jobs:
+    allow_failures:
+        env:
+            - CAN_FAIL=true
+
+    include:
+        - stage: Build on Python 3.6
+          python: 3.6
+          script:
+              - rkd :build
+
+        - stage: Build on Python 3.7
+          python: 3.6
+          script:
+              - rkd :build
+
+        - stage: Build on Python 3.8
+          python: 3.8
+          script:
+              - rkd :build
+
+        - stage: Release to PyPI
+          python: 3.6
+          script:
+              - rkd :build :publish --token="${PYPI_TOKEN}"

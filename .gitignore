@@ -1,3 +1,9 @@
 /build/
 /.venv/
 /dist/
+/packages/rkt_utils/AUTHORS
+/packages/rkt_utils/ChangeLog
+/packages/rkt_utils/README.rst
+/packages/rkt_armutils/AUTHORS
+/packages/rkt_armutils/ChangeLog
+/packages/rkt_armutils/README.rst
