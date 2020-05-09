@@ -27,7 +27,7 @@ tasks:
           - >
             #!python
 
-            for module in ['rkt_armutils', rkt_utils']:
+            for module in ['rkt_armutils', 'rkt_utils']:
                 sh('cd packages/%s rkd :py:publish --user=__token__ --password=%s %s' % (
                     module,
                     args['token'],
