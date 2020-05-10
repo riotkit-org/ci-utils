@@ -28,10 +28,10 @@ tasks:
             #!python
 
             for module in ['rkt_armutils', 'rkt_utils', 'rkt_ciutils']:
-                this.sh('cd packages/%s rkd :py:publish --user=__token__ --password=%s %s' % (
+                this.sh('cd packages/%s && rkd :py:publish --user=__token__ --password=%s %s' % (
                     module,
-                    args['token'],
-                    ' --test ' if args['test'] else ''
+                    ctx.args['token'],
+                    ' --test ' if ctx.args['test'] else ''
                 ))
 
             return True
