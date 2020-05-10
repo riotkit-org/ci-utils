@@ -15,6 +15,8 @@ Tools are split into modules by usage type to reduce the size of fetched package
 rkt_utils package
 ==================
 
+.. image:: https://badgen.net/pypi/v/rkt-utils
+
 Contains various tools to work with applications and with environment. rkt_utils have minimal requirements, so it can be
 used inside of a docker container to eg. wait for database to get up before application will be started.
 
@@ -35,6 +37,8 @@ used inside of a docker container to eg. wait for database to get up before appl
 rkt_armutils package
 =====================
 
+.. image:: https://badgen.net/pypi/v/rkt-armutils
+
 Consists of ARM-related tools, includes QEMU binaries required for
 cross-compilation and running of ARM binaries on x86\_64.
 
@@ -54,6 +58,8 @@ cross-compilation and running of ARM binaries on x86\_64.
 
 rkt_ciutils package
 ===================
+
+.. image:: https://badgen.net/pypi/v/rkt-ciutils
 
 Continuous Integration tools, and tools for local builds, publishing, building docker images.
 
