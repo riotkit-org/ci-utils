@@ -18,6 +18,15 @@ used inside of a docker container to eg. wait for database to get up before appl
 > Browse rkt_utils_ documentation
 ---------------------------------
 
+.. code:: bash
+
+    # with PIP
+    pip install rkt-utils==3.0.0     # replace with a preferred version
+    # or with PipEnv
+    pipenv install rkt-utils==3.0.0
+
+**Check available releases there:** https://pypi.org/project/rkt-utils/#history
+
 .. _rkt_utils: packages/rkt_utils/README.rst
 
 rkt_armutils package
@@ -29,6 +38,15 @@ cross-compilation and running of ARM binaries on x86\_64.
 > Browse rkt_armutils_ documentation
 ------------------------------------
 
+.. code:: bash
+
+    # with PIP
+    pip install rkt-armutils==3.0.0     # replace with a preferred version
+    # or with PipEnv
+    pipenv install rkt-armutils==3.0.0
+
+**Check available releases there:** https://pypi.org/project/rkt-armutils/#history
+
 .. _rkt_armutils: packages/rkt_utils/README.rst
 
 rkt_ciutils package
@@ -38,6 +56,15 @@ Continuous Integration tools, and tools for local builds, publishing, building d
 
 > Browse rkt_ciutils_ documentation
 -----------------------------------
+
+.. code:: bash
+
+    # with PIP
+    pip install rkt-ciutils==3.0.0     # replace with a preferred version
+    # or with PipEnv
+    pipenv install rkt-ciutils==3.0.0
+
+**Check available releases there:** https://pypi.org/project/rkt-ciutils/#history
 
 .. _rkt_ciutils: packages/rkt_utils/README.rst
 
