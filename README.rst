@@ -1,6 +1,9 @@
 RiotKit's tools
 ===============
 
+.. image:: https://travis-ci.com/riotkit-org/ci-utils.svg?branch=master
+    :target: https://travis-ci.com/riotkit-org/ci-utils
+
 Set of generic tools dedicated to be used inside of Docker images, in
 applications deployment and on Continuous Integration systems. The tools
 are provided as Python modules runned by RKD - RiotKit Do.
