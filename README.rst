@@ -47,7 +47,7 @@ cross-compilation and running of ARM binaries on x86\_64.
 
 **Check available releases there:** https://pypi.org/project/rkt-armutils/#history
 
-.. _rkt_armutils: packages/rkt_utils/README.rst
+.. _rkt_armutils: packages/rkt_armutils/README.rst
 
 rkt_ciutils package
 ===================
@@ -66,7 +66,7 @@ Continuous Integration tools, and tools for local builds, publishing, building d
 
 **Check available releases there:** https://pypi.org/project/rkt-ciutils/#history
 
-.. _rkt_ciutils: packages/rkt_utils/README.rst
+.. _rkt_ciutils: packages/rkt_ciutils/README.rst
 
 From authors
 ===================
