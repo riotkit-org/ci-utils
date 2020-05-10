@@ -9,7 +9,6 @@ tasks:
             this: TaskInterface
 
             for name in ['rkt_armutils', 'rkt_utils', 'rkt_ciutils']:
-                this.sh('cp ./README.rst packages/%s/README.rst || true' % name)
                 this.sh('cd packages/%s && rkd --silent :py:build' % name)
 
             return True
@@ -28,7 +27,7 @@ tasks:
             #!python
 
             for module in ['rkt_armutils', 'rkt_utils', 'rkt_ciutils']:
-                this.sh('cd packages/%s && rkd :py:publish --user=__token__ --password=%s %s' % (
+                this.sh('cd packages/%s && rkd --silent :py:publish --user=__token__ --password=%s %s' % (
                     module,
                     ctx.args['token'],
                     ' --test ' if ctx.args['test'] else ''

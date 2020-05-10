@@ -3,14 +3,11 @@
 /dist/
 /packages/rkt_utils/AUTHORS
 /packages/rkt_utils/ChangeLog
-/packages/rkt_utils/README.rst
 /packages/rkt_armutils/AUTHORS
 /packages/rkt_armutils/ChangeLog
-/packages/rkt_armutils/README.rst
 /packages/rkt_utils/build/
 /packages/rkt_utils/dist/
 /packages/rkt_ciutils/AUTHORS
 /packages/rkt_ciutils/ChangeLog
-/packages/rkt_ciutils/README.rst
 /packages/rkt_ciutils/dist/
 /packages/rkt_ciutils/build/
