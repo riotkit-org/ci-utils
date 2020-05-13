@@ -23,8 +23,11 @@ class BaseGithubTask(TaskInterface, ABC):
     def get_available_tags(self, url: str, sleep_time: int, retries: int = 5) -> list:
         """ Lists all tags from github project """
 
+        url = url + '/tags'
+        self.io().h2('Getting latest github releases from %s' % url)
+
         try:
-            response = requests.get(url + '/tags').json()
+            response = requests.get(url).json()
 
             if "message" in response and response['message'] == 'Not Found':
                 raise Exception('Repository on github not found')
@@ -94,6 +97,8 @@ class ForEachGithubReleaseTask(BaseGithubTask):
         return ':for-each-release'
 
     def execute(self, context: ExecutionContext) -> bool:
+        self.io().h1('Iterating over each github release')
+
         url = 'https://api.github.com/repos/%s' % context.args['repository']
         force_rebuild = not context.args['dont_rebuild']
         tags = self.get_available_tags(
@@ -101,12 +106,13 @@ class ForEachGithubReleaseTask(BaseGithubTask):
             int(context.args['retry_wait']),
             int(context.args['retries'])
         )
+        self.io().h4('Release tag template is "%s"' % context.args['release_tag_template'])
 
         return self.print_last_versions(
             tags=tags,
             max_versions=int(context.args['max_versions']),
             allowed_tags_regexp=re.compile(context.args['allowed_tags_regexp']) \
-                if context.args['allowed_tags_regexp'] else None,
+            if context.args['allowed_tags_regexp'] else None,
             release_tag_template=context.args['release_tag_template'],
             force_rebuild=force_rebuild,
             build_command=context.args['exec'],
@@ -120,6 +126,9 @@ class ForEachGithubReleaseTask(BaseGithubTask):
         to_build = {}
         result = True
 
+        self.io().print_opt_line()
+        self.io().h1('Parsing GIT tags to find out those that are release tags')
+
         # collect items to build
         for tag in tags:
             properties = None
@@ -127,14 +136,16 @@ class ForEachGithubReleaseTask(BaseGithubTask):
             if allowed_tags_regexp:
                 matches = allowed_tags_regexp.match(tag)
                 if not matches:
-                    self.log(">> Not matched tag \"%s\"\n" % tag)
+                    self.io().h2("Not matched tag \"%s\"" % tag)
                     continue
 
+                self.io().h2('Matched %s' % tag)
                 properties = matches
 
             to_build[tag] = properties
 
         processed = 0
+        self.io().h1('Processing tags (max amount: %i)' % max_versions)
 
         for git_tag, matches in to_build.items():
             if 0 < max_versions <= processed:
@@ -143,18 +154,23 @@ class ForEachGithubReleaseTask(BaseGithubTask):
             release_tag = self.create_release_tag(git_tag, matches, release_tag_template)
 
             if not force_rebuild and self.was_already_built(dest_docker_repo, release_tag):
-                self.log('Skipping "%s" as the docker tag already exists' % release_tag)
+                self.io().h2('Skipping "%s" as the docker tag already exists' % release_tag)
                 processed += 1
                 continue
 
             command = self.render_template(build_command, git_tag, matches)
 
-            self.log(' ===> %s' % command)
+            self.io().h2('Calling generated command %s' % command)
 
-            if not dry_run and subprocess.call(command, shell=True) != 0:
-                result = False
+            if not dry_run:
+                try:
+                    self.sh(command)
+                except subprocess.CalledProcessError:
+                    result = False
 
             processed += 1
+            self.io().print_separator()
+            self.io().print_opt_line()
 
         return result
 
@@ -178,24 +194,24 @@ class ForEachGithubReleaseTask(BaseGithubTask):
         if with_release_tag:
             text = text.replace('%RELEASE_TAG%', self.create_release_tag(git_tag, matches, original_text))
 
-        self.log(' >> render_template(): "%s" into "%s"' % (original_text, text))
+        self.io().h3('render_template(): "%s" into "%s"' % (original_text, text))
 
         return text
 
     def was_already_built(self, image_name: str, docker_tag: str) -> bool:
         """ Checks if the docker tag was already pushed """
 
-        self.log('>> Checking if docker tag "%s" was already pushed' % docker_tag)
+        self.io().h3('Checking if docker tag "%s" was already pushed' % docker_tag)
 
         try:
             self.rkd([':docker:tag-exists', '--name=%s:%s' % (image_name, docker_tag)])
             return True
 
-        except subprocess.CalledProcessError:
-            return False
+        except subprocess.CalledProcessError as e:
+            if e.returncode == 127:
+                raise Exception(':docker-tag-exists command is not registered')
 
-    def log(self, message: str):
-        self._io.info(message)
+            return False
 
     def configure_argparse(self, parser: ArgumentParser):
         super().configure_argparse(parser)
