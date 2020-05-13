@@ -23,11 +23,11 @@ class BaseGithubTask(TaskInterface, ABC):
     def get_available_tags(self, url: str, sleep_time: int, retries: int = 5) -> list:
         """ Lists all tags from github project """
 
-        url = url + '/tags'
-        self.io().h2('Getting latest github releases from %s' % url)
+        tags_url = url + '/tags'
+        self.io().h2('Getting latest github releases from %s' % tags_url)
 
         try:
-            response = requests.get(url).json()
+            response = requests.get(tags_url).json()
 
             if "message" in response and response['message'] == 'Not Found':
                 raise Exception('Repository on github not found')
