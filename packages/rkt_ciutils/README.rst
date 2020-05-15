@@ -16,6 +16,8 @@ Iterate over recent X github releases and execute a task.
         --dest-docker-repo quay.io/riotkit/file-repository \
         --allowed-tags-regexp 'v([0-9.]+)'
 
+**Class name to import:** rkt_ciutils.github.ForEachGithubReleaseTask [see how to import_]
+
 :github:find-closest-release
 ----------------------------
 
@@ -26,6 +28,8 @@ Finds a release number closest to specified.
 .. code:: bash
 
     rkd :github:find-closest-release --repository riotkit-org/file-repository -c 1.3
+
+**Class name to import:** rkt_ciutils.github.FindClosestReleaseTask [see how to import_]
 
 :docker:tag-exists
 ------------------
@@ -43,6 +47,8 @@ permissions to the daemon.
     # will result in a failure
     sudo rkd :docker:tag-exists -i alpine:not-existing
 
+**Class name to import:** rkt_ciutils.docker.DockerTagExistsTask [see how to import_]
+
 :docker:extract-envs-from-dockerfile
 ------------------------------------
 
@@ -52,6 +58,8 @@ values from a Dockerfile.
 .. code:: bash
 
     rkd :docker:extract-envs-from-dockerfile -f ~/Projekty/riotkit/riotkit/docker-taiga/Dockerfile --format bash_source
+
+**Class name to import:** rkt_ciutils.docker.ExtractEnvsFromDockerfileTask [see how to import_]
 
 :docker:generate-readme
 -----------------------
@@ -73,3 +81,7 @@ environment variables from a Dockerfile.
     - {{ attrs[0] }} # (default: {{ attrs[1] }})
 
     {% endfor %}
+
+**Class name to import:** rkt_ciutils.docker.GenerateReadmeTask [see how to import_]
+
+.. _import: https://riotkit-do.readthedocs.io/en/latest/usage/importing-tasks.html

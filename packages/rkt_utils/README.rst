@@ -23,6 +23,8 @@ Supports: PostgreSQL, MySQL
         --port=3306 \
         --type=mysql
 
+**Class name to import:** rkt_utils.db.WaitForDatabaseTask [see how to import_]
+
 :utils:env-to-json
 ------------------
 
@@ -34,3 +36,7 @@ Dumps all environment variables into JSON
 
     # parse any JSON value one dimension deep
     rkd :utils:env-to-json --parse-json
+
+**Class name to import:** rkt_utils.envtojson.EnvToJsonTask [see how to import_]
+
+.. _import: https://riotkit-do.readthedocs.io/en/latest/usage/importing-tasks.html
