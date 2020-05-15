@@ -1,10 +1,13 @@
+import re
 from typing import Dict
 from argparse import ArgumentParser
 from subprocess import CalledProcessError
 from rkd.contract import TaskInterface, ExecutionContext
 from rkd.syntax import TaskDeclaration
-from rkd.standardlib.docker import TagImageTask, PushTask
+from rkd.standardlib.docker import TagImageTask
+from rkd.standardlib.docker import PushTask
 from .github import ForEachGithubReleaseTask
+from .github import FindClosestReleaseTask
 from .docker import DockerTagExistsTask
 from .tools import VersionTools, GitTools
 
@@ -119,8 +122,6 @@ class ProcessRequestTask(TaskInterface):
 
 
 class EachRelease(TaskInterface):
-    # @todo: %findClosestRelease(...)%
-
     def get_name(self) -> str:
         return ':each-release'
 
@@ -129,7 +130,6 @@ class EachRelease(TaskInterface):
 
     def execute(self, context: ExecutionContext) -> bool:
         # input
-        # @todo: List in help?
         allowed_tags_regexp: str = context.getenv('ALLOWED_TAGS_REGEXP')
         dest_docker_repo: str = context.getenv('DEST_DOCKER_REPO')
         max_versions: int = int(context.getenv('MAX_VERSIONS'))
@@ -146,7 +146,8 @@ class EachRelease(TaskInterface):
             opts += ' --dont-rebuild '
 
         cmd = ('set -x; rkd :github:for-each-release --repository=%s --exec="%s" ' +
-               ' --dest-docker-repo="%s" --allowed-tags-regexp="%s" --release-tag-template="%s" --max-versions=%i %s') % (
+               ' --dest-docker-repo="%s" --allowed-tags-regexp="%s" ' +
+               '--release-tag-template="%s" --max-versions=%i %s') % (
             github_repository,
             version_build_cmd,
             dest_docker_repo,
@@ -205,14 +206,18 @@ class SpecificRelease(TaskInterface):
         work_dir = context.get_arg_or_env('--dir')
         dockerfile_path = context.get_arg_or_env('--dockerfile')
         image = context.get_arg_or_env('--image')
-        opts = context.get_arg_or_env('--docker-build-opts')
         image_version = context.args['docker_version']
+        app_version = context.args['app_version']
+        opts = self._parse_opts(context.get_arg_or_env('--docker-build-opts'), app_version)
 
         # complete docker image address with version
         tag = image + ':' + image_version
 
         # build & tag & publish
-        if not self.silent_sh('docker build %s -f %s -t %s %s' % (work_dir, dockerfile_path, tag, opts), verbose=True):
+        if not self.silent_sh(('docker build %s -f %s -t %s %s ' +
+                               '--build-arg RKT_APP_VERSION="%s" --build-arg RKT_IMG_VERSION=%s') %
+                              (work_dir, dockerfile_path, tag, opts, app_version, image_version),
+                              verbose=True):
             self.io().error('Cannot build docker image')
             return False
 
@@ -220,6 +225,31 @@ class SpecificRelease(TaskInterface):
         self.rkd([':docker:push', '--image=%s' % tag, '--propagate', '-rl=debug'], verbose=True)
 
         return True
+
+    def _parse_opts(self, template: str, app_version: str) -> str:
+        """Templating - allows to append additional information to build args of the Docker image
+
+        Example case:
+            --build-arg FRONTEND_VERSION=%FIND_CLOSEST_RELEASE(taigaio/taiga-front-dist)%
+            To find and paste a closest matching release of Taiga frontend, when building the backend.
+            The algorithm is in :github:find-closest-release task and is always reproducible.
+        """
+
+        if '%FIND_CLOSEST_RELEASE' in template:
+            all_matches = re.findall('%FIND_CLOSEST_RELEASE\((.*)\)%', template)
+
+            for match in all_matches:
+                template = template.replace(
+                    '%%FIND_CLOSEST_RELEASE(%s)%%' % match,
+                    self.sh(' '.join([
+                        'rkd', '--silent',
+                        ':github:find-closest-release',
+                        '--repository=%s' % match,
+                        '--compare-with=%s' % app_version
+                    ]), capture=True).strip()
+                )
+
+        return template
 
     def configure_argparse(self, parser: ArgumentParser):
         parser.add_argument('--dockerfile', '-f', help='Path to Dockerfile')
@@ -239,6 +269,7 @@ def imports():
 
         # dependencies
         TaskDeclaration(ForEachGithubReleaseTask()),
+        TaskDeclaration(FindClosestReleaseTask()),
         TaskDeclaration(TagImageTask()),
         TaskDeclaration(PushTask()),
         TaskDeclaration(DockerTagExistsTask())
