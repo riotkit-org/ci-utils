@@ -96,14 +96,26 @@ environment variables from a Dockerfile.
 Boat-CI
 =======
 
-Continuous Integration tasks designed to build docker images, mainly packaging applications placed in other repositories.
+Provides Continuous Integration tasks designed to build docker images. Boat-CI is focusing on packaging existing applications, that are released on Github in separate repositories.
+The CI is customizable with environment variables and commandline switches.
 
-The CI is customized with environment variables.
+**Example scenario:**
+
+.. code:: cucumber
+
+    GIVEN we have project taigaio/taiga-back that is a backend application
+    AND there is a separate frontend application at taigaio/taiga-front-dist
+    AND we have THIS Boat-CI repository named riotkit-org/taiga-docker
+    WHEN we want to build docker image for each new release of Taiga (backend + frontend is a complete setup)
+    THEN on each pushed tag in riotkit-org/taiga-docker we run Boat-CI to produce images eg. taiga:5.0.1-D1.0, taiga:4.9-D1.0
+
 
 **Concept:**
 
-    - The CI+Dockerfile is placed in a separate repository (application is in a separate repository, of course it can be the same repository)
-    - SNAPSHOT on master/commit is a tag in registry that overwrites eg. taiga:4.1.5-SNAPSHOT #TODO VERIFY
+- The CI+Dockerfile is placed in a separate repository (application is in a separate repository, probably it can be configured differently)
+- SNAPSHOT on master/commit is a tag in the docker registry that overwrites all the time eg. taiga:4.1.5-SNAPSHOT, taiga:4.1.6-SNAPSHOT (SNAPSHOT means that CI+docker version is LATEST for given application version)
+- [customization] SNAPSHOT can consider ci+docker next version eg. taiga:4.1.5-D1.0.1-SNAPSHOT by using --dev-version-template="%MATCH_0%-D%NEXT_VERSION%-SNAPSHOT"
+- SNAPSHOT tags are not propagated by default, so no 1.0.1 -> 1.0 -> 1 -> latest re-tagging of docker image
 
 **Naming convention:**
 
@@ -154,7 +166,7 @@ Responsibility:
 
 Behavior:
 
-    - When "@force-rebuild" in commit message, then rebuild existing tags
-    - When "@force-rebuild-last-tag" is in commit message, rebuild previous tag [more valuable than just @force-rebuild], warning: dangerous, use with caution
-    - When is on TAG in current docker repository - build last X versions of application
+    - When "@force-rebuild" in commit message, then rebuild existing images (in case of "moving tags" - bad practice, but can happen, we handle such emergency case)
+    - When "@force-rebuild-last-tag" is in commit message, rebuild previous tag's images, warning: dangerous, use with caution
+    - When is on TAG in current docker repository - build last X versions of application, set double version (app + docker)
     - When is on branch/commit in current docker repository - build a snapshot of last X versions of application #TODO VERIFY
