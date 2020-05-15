@@ -16,6 +16,7 @@ from rkt_utils.db import WaitForDatabaseTask
 from rkt_armutils.docker import imports as TravisARMImports
 from rkd.standardlib.docker import imports as DockerImports
 from rkd.standardlib.python import imports as PythonImports
+from rkd.syntax import TaskDeclaration
 
 IMPORTS = [
             TaskDeclaration(EnvToJsonTask()),
