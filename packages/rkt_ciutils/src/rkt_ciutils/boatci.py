@@ -13,11 +13,11 @@ from .tools import VersionTools, GitTools
 
 
 class ProcessRequestTask(TaskInterface):
-    """ Takes incoming request from the CI
+    """Takes incoming request from the CI
 
-        Responsibility:
-          - Decide about the destination version number and format
-          - Decide if we REBUILD existing tags or not (release enforces this)
+    Responsibility:
+        - Decide about the destination version number and format
+        - Decide if we REBUILD existing tags or not (release enforces this)
     """
 
     def get_name(self) -> str:
