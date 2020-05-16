@@ -7,6 +7,7 @@ from typing import List, Dict
 from argparse import ArgumentParser
 from rkd.contract import TaskInterface, ExecutionContext
 from rkd.standardlib.shell import BaseShellCommandWithArgumentParsingTask
+from rkd.syntax import TaskDeclaration
 from collections import namedtuple
 
 
@@ -204,3 +205,11 @@ class GenerateReadmeTask(TaskInterface):
         parser.add_argument('--target-path', '-t', required=False, default='',
                             help='Path where to write the README. If not specified, then stdout will be preferred')
         parser.add_argument('--dockerfile', '-f', required=True, help='Path to the Dockerfile to parse')
+
+
+def imports():
+    return [
+        TaskDeclaration(GenerateReadmeTask()),
+        TaskDeclaration(DockerTagExistsTask()),
+        TaskDeclaration(ExtractEnvsFromDockerfileTask())
+    ]
