@@ -116,7 +116,7 @@ class ForEachGithubReleaseTask(BaseGithubTask):
             release_tag_template=context.args['release_tag_template'],
             force_rebuild=force_rebuild,
             build_command=context.args['exec'],
-            dest_docker_repo=context.args['repository'],
+            dest_docker_repo=context.args['dest_docker_repo'],
             dry_run=bool(context.args['dry_run'])
         )
 
@@ -204,7 +204,7 @@ class ForEachGithubReleaseTask(BaseGithubTask):
         self.io().h3('Checking if docker tag "%s" was already pushed' % docker_tag)
 
         try:
-            self.rkd([':docker:tag-exists', '--name=%s:%s' % (image_name, docker_tag)])
+            self.rkd([':docker:tag-exists', '--image=%s:%s' % (image_name, docker_tag)], verbose=True)
             return True
 
         except subprocess.CalledProcessError as e:
