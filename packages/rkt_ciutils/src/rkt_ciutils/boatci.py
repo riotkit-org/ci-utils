@@ -209,6 +209,7 @@ class SpecificRelease(TaskInterface):
         image_version = context.args['docker_version']
         app_version = context.args['app_version']
         opts = self._parse_opts(context.get_arg_or_env('--docker-build-opts'), app_version)
+        push: bool = not bool(context.args['no_push'])
 
         # complete docker image address with version
         tag = image + ':' + image_version
@@ -222,7 +223,9 @@ class SpecificRelease(TaskInterface):
             return False
 
         self.rkd([':docker:tag', '--image=%s' % tag, '--propagate', '-rl=debug'], verbose=True)
-        self.rkd([':docker:push', '--image=%s' % tag, '--propagate', '-rl=debug'], verbose=True)
+
+        if push:
+            self.rkd([':docker:push', '--image=%s' % tag, '--propagate', '-rl=debug'], verbose=True)
 
         return True
 
@@ -259,6 +262,7 @@ class SpecificRelease(TaskInterface):
         parser.add_argument('--app-version', '-av', help='Application version')
         parser.add_argument('--docker-build-opts', '-o', default='',
                             help='Docker build opts eg. --build-arg SOME=THING')
+        parser.add_argument('--no-push', help='Don\'t push to docker registry', action='store_true')
 
 
 def imports():
