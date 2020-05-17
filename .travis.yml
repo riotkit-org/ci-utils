@@ -3,7 +3,7 @@ os: linux
 if: branch = master or tag IS present
 python: 3.6
 
-before_script: pip install rkd==0.3.1dev4
+before_script: pip install 'rkd>=0.4.1.0a1'
 
 jobs:
     allow_failures:
