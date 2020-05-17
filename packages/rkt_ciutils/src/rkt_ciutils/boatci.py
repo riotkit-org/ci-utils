@@ -173,7 +173,7 @@ class EachRelease(TaskInterface):
             'GITHUB_REPOSITORY': '',
             'VERSION_BUILD_CMD': 'rkd :boat-ci:specific-release --dockerfile=./Dockerfile ' +
                                  ' --dir=. --docker-version="%VERSION_TEMPLATE%" --app-version="%MATCH_0%" ' +
-                                 ' --image=%IMAGE%'
+                                 ' --dest-docker-repo=%IMAGE%'
         }
 
     def configure_argparse(self, parser: ArgumentParser):
@@ -196,7 +196,7 @@ class SpecificRelease(TaskInterface):
     def get_declared_envs(self) -> Dict[str, str]:
         return {
             'DOCKER_BUILD_OPTS': '',
-            'IMAGE': '',
+            'DEST_DOCKER_REPO': '',
             'DOCKERFILE': '',
             'DIR': ''
         }
@@ -205,7 +205,7 @@ class SpecificRelease(TaskInterface):
         # facts
         work_dir = context.get_arg_or_env('--dir')
         dockerfile_path = context.get_arg_or_env('--dockerfile')
-        image = context.get_arg_or_env('--image')
+        image = context.get_arg_or_env('--dest-docker-repo')
         image_version = context.args['docker_version']
         app_version = context.args['app_version']
         opts = self._parse_opts(context.get_arg_or_env('--docker-build-opts'), app_version)
@@ -255,10 +255,10 @@ class SpecificRelease(TaskInterface):
         return template
 
     def configure_argparse(self, parser: ArgumentParser):
-        parser.add_argument('--dockerfile', '-f', help='Path to Dockerfile')
+        parser.add_argument('--dockerfile', '-f', help='Path to Dockerfile', default='./Dockerfile')
         parser.add_argument('--dir', '-d', help='Build directory / build root')
         parser.add_argument('--docker-version', '-v', required=True, help='Version of the docker image (image tag)')
-        parser.add_argument('--image', '-i', required=True, help='Image eg. quay.io/riotkit/tunman')
+        parser.add_argument('--dest-docker-repo', '-i', help='Image eg. quay.io/riotkit/tunman')
         parser.add_argument('--app-version', '-av', help='Application version')
         parser.add_argument('--docker-build-opts', '-o', default='',
                             help='Docker build opts eg. --build-arg SOME=THING')
