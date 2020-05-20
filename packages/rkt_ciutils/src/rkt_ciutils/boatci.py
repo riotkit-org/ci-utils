@@ -1,5 +1,6 @@
 import re
 from typing import Dict
+from typing import Optional
 from argparse import ArgumentParser
 from subprocess import CalledProcessError
 from rkd.contract import TaskInterface, ExecutionContext
@@ -130,13 +131,13 @@ class EachRelease(TaskInterface):
 
     def execute(self, context: ExecutionContext) -> bool:
         # input
-        allowed_tags_regexp: str = context.getenv('ALLOWED_TAGS_REGEXP')
-        dest_docker_repo: str = context.getenv('DEST_DOCKER_REPO')
-        max_versions: int = int(context.getenv('MAX_VERSIONS'))
-        github_repository: str = context.getenv('GITHUB_REPOSITORY')
+        allowed_tags_regexp: str = context.get_env('ALLOWED_TAGS_REGEXP')
+        dest_docker_repo: str = context.get_env('DEST_DOCKER_REPO')
+        max_versions: int = int(context.get_env('MAX_VERSIONS'))
+        github_repository: str = context.get_env('GITHUB_REPOSITORY')
         version_template: str = context.args['version_template']
         rebuild: bool = not context.args['dont_rebuild_when_exists']
-        version_build_cmd: str = context.getenv('VERSION_BUILD_CMD')\
+        version_build_cmd: str = context.get_env('VERSION_BUILD_CMD')\
             .replace('%VERSION_TEMPLATE%', version_template)\
             .replace('%IMAGE%', dest_docker_repo)
 
@@ -193,12 +194,12 @@ class SpecificRelease(TaskInterface):
     def get_group_name(self) -> str:
         return ':boat-ci'
 
-    def get_declared_envs(self) -> Dict[str, str]:
+    def get_declared_envs(self) -> Dict[str, Optional[str]]:
         return {
-            'DOCKER_BUILD_OPTS': '',
-            'DEST_DOCKER_REPO': '',
-            'DOCKERFILE': '',
-            'DIR': ''
+            'DOCKER_BUILD_OPTS': None,
+            'DEST_DOCKER_REPO': None,
+            'DOCKERFILE': None,
+            'DIR': None
         }
 
     def execute(self, context: ExecutionContext) -> bool:
@@ -260,7 +261,7 @@ class SpecificRelease(TaskInterface):
         parser.add_argument('--docker-version', '-v', required=True, help='Version of the docker image (image tag)')
         parser.add_argument('--dest-docker-repo', '-i', help='Image eg. quay.io/riotkit/tunman')
         parser.add_argument('--app-version', '-av', help='Application version')
-        parser.add_argument('--docker-build-opts', '-o', default='',
+        parser.add_argument('--docker-build-opts', '-o', default=None,
                             help='Docker build opts eg. --build-arg SOME=THING')
         parser.add_argument('--no-push', help='Don\'t push to docker registry', action='store_true')
 
