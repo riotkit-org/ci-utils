@@ -3,7 +3,11 @@ os: linux
 if: branch = master or tag IS present
 python: 3.6
 
-before_script: pip install 'rkd==2.1.0.0rc2.dev2'
+before_script:
+    - pip install -r packages/rkt_armutils/requirements.txt
+    - pip install -r packages/rkt_ciutils/requirements.txt
+    - pip install -r packages/rkt_utils/requirements.txt
+    - pip install 'rkd==2.1.0.0rc2.dev2'
 
 jobs:
     allow_failures:
