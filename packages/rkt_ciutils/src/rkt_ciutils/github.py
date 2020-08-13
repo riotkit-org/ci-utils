@@ -6,7 +6,7 @@ import time
 import re
 import subprocess
 from argparse import ArgumentParser
-from rkd.contract import TaskInterface, ExecutionContext
+from rkd.api.contract import TaskInterface, ExecutionContext
 
 
 def natural_sort(l):

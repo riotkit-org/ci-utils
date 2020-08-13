@@ -3,10 +3,10 @@ from typing import Dict
 from typing import Optional
 from argparse import ArgumentParser
 from subprocess import CalledProcessError
-from rkd.contract import TaskInterface, ExecutionContext
-from rkd.syntax import TaskDeclaration
-from rkd.standardlib.docker import TagImageTask
-from rkd.standardlib.docker import PushTask
+from rkd.api.contract import TaskInterface, ExecutionContext
+from rkd.api.syntax import TaskDeclaration
+from rkt_utils.docker import TagImageTask
+from rkt_utils.docker import PushTask
 from .github import ForEachGithubReleaseTask
 from .github import FindClosestReleaseTask
 from .docker import DockerTagExistsTask

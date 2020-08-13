@@ -4,8 +4,8 @@ from argparse import ArgumentParser
 from abc import ABC
 from typing import Callable
 from subprocess import CalledProcessError
-from rkd.contract import TaskInterface, ExecutionContext
-from rkd.syntax import TaskDeclaration
+from rkd.api.contract import TaskInterface, ExecutionContext
+from rkd.api.syntax import TaskDeclaration
 
 
 class DockerBaseTask(TaskInterface, ABC):

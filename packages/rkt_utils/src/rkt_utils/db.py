@@ -3,7 +3,7 @@ import time
 import subprocess
 from argparse import ArgumentParser
 from typing import Callable
-from rkd.contract import TaskInterface, ExecutionContext
+from rkd.api.contract import TaskInterface, ExecutionContext
 
 
 class WaitForDatabaseTask(TaskInterface):

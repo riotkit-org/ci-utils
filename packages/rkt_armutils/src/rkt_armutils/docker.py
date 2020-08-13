@@ -2,7 +2,7 @@
 import os
 from argparse import ArgumentParser
 from rkd.standardlib.shell import BaseShellCommandWithArgumentParsingTask
-from rkd.syntax import TaskDeclaration
+from rkd.api.syntax import TaskDeclaration
 
 
 class InjectQEMUBinaryIntoContainerTask(BaseShellCommandWithArgumentParsingTask):

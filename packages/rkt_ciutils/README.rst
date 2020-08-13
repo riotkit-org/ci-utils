@@ -126,10 +126,10 @@ The CI is customizable with environment variables and commandline switches.
 
 .. code:: yaml
 
-    version: org.riotkit.rkd/0.3
+    version: org.riotkit.rkd/yaml/v1
     imports:
-        - rkd.standardlib.python
-        - rkd.standardlib.docker
+        - rkd_python
+        - rkt_utils.docker
         - rkt_ciutils.boatci
 
     tasks:
