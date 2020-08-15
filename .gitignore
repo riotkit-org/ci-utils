@@ -11,3 +11,5 @@
 /packages/rkt_ciutils/ChangeLog
 /packages/rkt_ciutils/dist/
 /packages/rkt_ciutils/build/
+.idea
+build/lib/*
