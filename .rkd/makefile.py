@@ -4,9 +4,9 @@ import os
 
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 
-sys.path.append(CURRENT_DIR + '/../packages/rkt_armutils/src')
-sys.path.append(CURRENT_DIR + '/../packages/rkt_ciutils/src')
-sys.path.append(CURRENT_DIR + '/../packages/rkt_utils/src')
+sys.path.append(CURRENT_DIR + '/../packages/rkt_armutils')
+sys.path.append(CURRENT_DIR + '/../packages/rkt_ciutils')
+sys.path.append(CURRENT_DIR + '/../packages/rkt_utils')
 
 
 from rkt_utils.envtojson import EnvToJsonTask
