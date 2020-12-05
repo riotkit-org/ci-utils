@@ -31,6 +31,6 @@ jobs:
               - rkd :build
 
         - stage: Release to PyPI
-          python: 3.6
+          python: 3.8
           script:
               - rkd :build :publish --token="${PYPI_TOKEN}"
