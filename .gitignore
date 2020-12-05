@@ -13,3 +13,5 @@
 /packages/rkt_ciutils/build/
 .idea
 build/lib/*
+*.egg-info/
+/packages/rkt_armutils/build/
